@@ -102,6 +102,16 @@ void ModelBoxJNIThrow(JNIEnv *env, const char *runtime_exception,
   do_jni_throw(env, runtime_exception, errmsg);
 }
 
+bool ModelBoxJNIHasException(JNIEnv *env) {
+  if (env->ExceptionCheck()) {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    return true;
+  }
+  
+  return false;
+}
+
 std::string ModelboxExceptionMsg(JNIEnv *env) {
   auto *j_throw = env->ExceptionOccurred();
   if (j_throw == nullptr) {

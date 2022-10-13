@@ -17,6 +17,10 @@
 package com.modelbox;
 
 abstract public class FlowUnit extends NativeObject {
+  public FlowUnit() {
+    setNativeHandle(FlowUnit_New());
+  }
+
   /**
    * Flowunit Open 
    * @param opts
@@ -28,7 +32,9 @@ abstract public class FlowUnit extends NativeObject {
    * Flowunit Close
    * @return
    */
-  abstract public Status close();
+  public Status close() {
+    return Status.OK();
+  }
   
   /**
    * FlowUnit data process
@@ -42,12 +48,18 @@ abstract public class FlowUnit extends NativeObject {
    * @param data_ctx
    * @return
    */
-  abstract public Status dataPre(DataContext data_ctx);
+  public Status dataPre(DataContext data_ctx) {
+    return Status.OK();
+  }
 
   /**
    * FlowUnit data Post;
    * @param data_ctx
    * @return
    */
-  abstract public Status dataPost(DataContext data_ctx);
+  public Status dataPost(DataContext data_ctx) {
+    return Status.OK();
+  }
+
+  private native long FlowUnit_New();
 }

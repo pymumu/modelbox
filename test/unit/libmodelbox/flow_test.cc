@@ -665,7 +665,35 @@ TEST_F(FlowTest, NormalError) {
   flow->Stop();
 }
 
-TEST_F(FlowTest, DISABLED_InlineFlowUnit) {
+class InlineFlowUnit : public FlowUnit {
+ public:
+  Status Process(std::shared_ptr<DataContext> data_ctx) override {
+    auto indata = data_ctx->Input("in");
+    auto output = data_ctx->Output("out");
+
+    for (const auto& buff : *indata) {
+      output->PushBack(buff);
+    }
+
+    return modelbox::STATUS_OK;
+  }
+};
+
+class InlineFlowUnitBuilder : public FlowUnitBuilder {
+ public:
+  void Probe(std::shared_ptr<FlowUnitDesc>& desc) override {
+    desc->SetFlowUnitType("cpu");
+    desc->SetFlowUnitName("inlineflowunit");
+    desc->AddFlowUnitInput({"in"});
+    desc->AddFlowUnitOutput({"out"});
+  }
+
+  std::shared_ptr<FlowUnit> Build() override {
+    return std::make_shared<InlineFlowUnit>();
+  }
+};
+
+TEST_F(FlowTest, InlineFlowUnit) {
   const std::string test_lib_dir = TEST_LIB_DIR;
   const std::string test_driver_dir = TEST_DRIVER_DIR;
   std::string toml_content = R"(
@@ -676,7 +704,7 @@ TEST_F(FlowTest, DISABLED_InlineFlowUnit) {
                              R"([graph]
     graphconf = '''digraph demo {                                                                            
           input[type=input]             
-          process[flowunit=passthrouth, device=cpu] 
+          process[flowunit=inlineflowunit, device=cpu] 
           output[type=output]                                
           input -> process:in
           process:out -> output                                                                     
